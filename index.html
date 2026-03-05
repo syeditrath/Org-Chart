@@ -103,6 +103,14 @@ select.gs { border: 1px solid #E2E8F0; border-radius: 5px; padding: 3px 7px; fon
     <button class="tab off" onclick="show('data')">✏️ Edit Data</button>
   </div>
 </div>
+  <script>
+// Hide data tab by default
+const dataTab = document.getElementById('data-tab');
+const accessPwd = prompt("Enter password for Edit Data access:");
+if(accessPwd === 'Scorpion@1991'){ // <-- change this to your password
+  dataTab.style.display = 'inline-flex';
+}
+</script>
 
 <div id="chart-view" class="view show">
   <div id="canvas"><svg id="svg-layer"></svg></div>
