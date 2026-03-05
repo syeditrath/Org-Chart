@@ -5,6 +5,17 @@
 <title>Scorpion Arabia Organisation Chart 2026</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
+  .header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.logo {
+  height: 36px; /* Adjust height as needed */
+  width: auto;
+  display: block;
+}
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'Outfit', sans-serif; background: #EEF2FA; min-height: 100vh; }
 
@@ -81,9 +92,14 @@ select.gs { border: 1px solid #E2E8F0; border-radius: 5px; padding: 3px 7px; fon
 <body>
 
 <div class="header">
-  <div><h1>Scorpion Arabia Organisation Chart<span class="yr">· 2026</span></h1></div>
+  <div class="header-left">
+    <!-- GitHub Pages absolute path -->
+    <img src="https://syeditrath.github.io/org-chart/logo.png" class="logo" alt="Company Logo">
+    <h1>Scorpion Arabia Organisation Chart<span class="yr">· 2026</span></h1>
+  </div>
+
   <div class="tabs">
-    <button class="tab on"  onclick="show('chart')">📊 Org Chart</button>
+    <button class="tab on" onclick="show('chart')">📊 Org Chart</button>
     <button class="tab off" onclick="show('data')">✏️ Edit Data</button>
   </div>
 </div>
