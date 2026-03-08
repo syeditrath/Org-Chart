@@ -185,8 +185,8 @@ select.gs { border: 1px solid #E2E8F0; border-radius: 5px; padding: 3px 7px; fon
     <div class="lk">🔒</div>
     <h2>Admin Access Required</h2>
     <p>Enter the password to edit employee data.</p>
-    <input id="pw-input" type="password" placeholder="••••••••"
-           onkeydown="if(event.key==='Enter') checkPw()">
+    <input id="pw-input" type="text" placeholder="Enter password"
+           autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
     <div id="pw-err"></div>
     <button id="pw-btn" onclick="checkPw()">Unlock</button>
     <div id="pw-cancel" onclick="closePw()">Cancel</div>
@@ -356,18 +356,28 @@ function switchTo(tab) {
 
 // ── PASSWORD ──────────────────────────────────────────────────────────────────
 function openPw() {
-  document.getElementById('pw-input').value='';
+  var inp = document.getElementById('pw-input');
+  inp.value='';
+  inp.type='text'; // reset type to clear autofill
+  setTimeout(function(){ inp.type='text'; }, 0);
   document.getElementById('pw-err').textContent='';
-  document.getElementById('pw-input').classList.remove('shake');
-  document.getElementById('pw-overlay').classList.add('show');
-  setTimeout(()=>document.getElementById('pw-input').focus(),100);
+  inp.classList.remove('shake');
+  var overlay = document.getElementById('pw-overlay');
+  overlay.style.display = 'flex';
+  overlay.classList.add('show');
+  setTimeout(function(){ inp.focus(); }, 150);
 }
-function closePw() { document.getElementById('pw-overlay').classList.remove('show'); }
+function closePw() {
+  var overlay = document.getElementById('pw-overlay');
+  overlay.classList.remove('show');
+  overlay.style.display = 'none';
+}
 function checkPw() {
-  if (document.getElementById('pw-input').value===PW) {
+  var val = document.getElementById('pw-input').value;
+  if (val === PW) {
     unlocked=true; closePw(); switchTo('data');
   } else {
-    const inp=document.getElementById('pw-input');
+    var inp=document.getElementById('pw-input');
     inp.classList.remove('shake'); void inp.offsetWidth; inp.classList.add('shake');
     document.getElementById('pw-err').textContent='Incorrect password. Try again.';
     inp.value=''; inp.focus();
@@ -375,11 +385,16 @@ function checkPw() {
 }
 document.getElementById('pw-overlay').addEventListener('click', e=>{ if(e.target===e.currentTarget) closePw(); });
 
-// ── INIT — runs immediately, chart view is already visible ────────────────────
-// Ensure modal is never visible on load
-document.getElementById('pw-overlay').classList.remove('show');
-renderChart();
-renderTable();
+// ── INIT ─────────────────────────────────────────────────────────────────────
+window.addEventListener('load', function() {
+  // Force hide modal - belt and braces
+  var overlay = document.getElementById('pw-overlay');
+  overlay.classList.remove('show');
+  overlay.style.display = 'none';
+  // Show org chart
+  renderChart();
+  renderTable();
+});
 </script>
 </body>
 </html>
