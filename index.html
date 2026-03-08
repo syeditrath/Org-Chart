@@ -80,11 +80,11 @@ select.gs { border: 1px solid #E2E8F0; border-radius: 5px; padding: 3px 7px; fon
 
 /* ── Password Modal ── */
 #pw-overlay {
-  display: none; position: fixed; inset: 0;
+  display: none !important; position: fixed; inset: 0;
   background: rgba(11,29,81,.55); backdrop-filter: blur(4px);
   z-index: 9999; align-items: center; justify-content: center;
 }
-#pw-overlay.show { display: flex; }
+#pw-overlay.show { display: flex !important; }
 #pw-box {
   background: #fff; border-radius: 14px; padding: 36px 40px 32px;
   width: 340px; box-shadow: 0 20px 60px rgba(11,29,81,.3); text-align: center;
@@ -376,6 +376,8 @@ function checkPw() {
 document.getElementById('pw-overlay').addEventListener('click', e=>{ if(e.target===e.currentTarget) closePw(); });
 
 // ── INIT — runs immediately, chart view is already visible ────────────────────
+// Ensure modal is never visible on load
+document.getElementById('pw-overlay').classList.remove('show');
 renderChart();
 renderTable();
 </script>
