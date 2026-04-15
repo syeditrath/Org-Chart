@@ -219,15 +219,31 @@ let data = [
 // ── LAYOUT (pure math — no DOM needed) ───────────────────────────────────────
 const CW=158, CH=72, HGAP=18, VGAP=82, PAD=40;
 
-function kids(id) { return data.filter(d => d.par === id); }
+function kids(id) {
+  const grpOrder = { ceo: 1, md: 2, mgr: 3, ops: 4, stf: 5 };
 
-const _sw = {};
-function sw(id) {
-  if (_sw[id]!==undefined) return _sw[id];
-  const ch = kids(id);
-  if (!ch.length) return (_sw[id]=CW);
-  const w = ch.reduce((s,c)=>s+sw(c.id),0) + (ch.length-1)*HGAP;
-  return (_sw[id] = Math.max(CW, w));
+  return data
+    .filter(d => d.par === id)
+    .sort((a, b) => {
+      const deptA = (a.dept || '').trim().toLowerCase();
+      const deptB = (b.dept || '').trim().toLowerCase();
+
+      // 1. Keep same departments together
+      if (deptA !== deptB) return deptA.localeCompare(deptB);
+
+      // 2. Inside same department, keep managers before staff
+      const grpA = grpOrder[a.grp] || 99;
+      const grpB = grpOrder[b.grp] || 99;
+      if (grpA !== grpB) return grpA - grpB;
+
+      // 3. Then sort by title
+      const titleA = (a.title || '').trim().toLowerCase();
+      const titleB = (b.title || '').trim().toLowerCase();
+      if (titleA !== titleB) return titleA.localeCompare(titleB);
+
+      // 4. Finally sort by name
+      return (a.name || '').trim().localeCompare((b.name || '').trim());
+    });
 }
 
 function buildLayout() {
