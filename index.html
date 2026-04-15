@@ -217,7 +217,12 @@ let data = [
 ];
 
 // ── LAYOUT (pure math — no DOM needed) ───────────────────────────────────────
-const CW=158, CH=72, HGAP=18, VGAP=82, PAD=40;
+const CW = 158, CH = 72, HGAP = 18, VGAP = 82, PAD = 40;
+const DEPT_GAP = 42; // extra gap between department groups
+
+function normDept(v) {
+  return (v || '').trim().toUpperCase();
+}
 
 function kids(id) {
   const grpOrder = { ceo: 1, md: 2, mgr: 3, ops: 4, stf: 5 };
@@ -225,25 +230,81 @@ function kids(id) {
   return data
     .filter(d => d.par === id)
     .sort((a, b) => {
-      const deptA = (a.dept || '').trim().toLowerCase();
-      const deptB = (b.dept || '').trim().toLowerCase();
+      const deptA = normDept(a.dept);
+      const deptB = normDept(b.dept);
 
-      // 1. Keep same departments together
+      // keep same department together
       if (deptA !== deptB) return deptA.localeCompare(deptB);
 
-      // 2. Inside same department, keep managers before staff
+      // inside same department, managers first
       const grpA = grpOrder[a.grp] || 99;
       const grpB = grpOrder[b.grp] || 99;
       if (grpA !== grpB) return grpA - grpB;
 
-      // 3. Then sort by title
+      // then designation
       const titleA = (a.title || '').trim().toLowerCase();
       const titleB = (b.title || '').trim().toLowerCase();
       if (titleA !== titleB) return titleA.localeCompare(titleB);
 
-      // 4. Finally sort by name
+      // then name
       return (a.name || '').trim().localeCompare((b.name || '').trim());
     });
+}
+
+function childRowWidth(children) {
+  if (!children.length) return 0;
+
+  let total = 0;
+  children.forEach((c, i) => {
+    if (i > 0) {
+      const prev = children[i - 1];
+      const sameDept = normDept(prev.dept) === normDept(c.dept);
+      total += sameDept ? HGAP : (HGAP + DEPT_GAP);
+    }
+    total += sw(c.id);
+  });
+
+  return total;
+}
+
+const _sw = {};
+function sw(id) {
+  if (_sw[id] !== undefined) return _sw[id];
+
+  const ch = kids(id);
+  if (!ch.length) return (_sw[id] = CW);
+
+  const w = childRowWidth(ch);
+  return (_sw[id] = Math.max(CW, w));
+}
+
+function buildLayout() {
+  Object.keys(_sw).forEach(k => delete _sw[k]);
+
+  const pos = {};
+
+  function place(id, left, depth) {
+    pos[id] = { x: left + sw(id) / 2, y: depth * (CH + VGAP) };
+
+    const ch = kids(id);
+    let cursor = left;
+
+    ch.forEach((c, i) => {
+      place(c.id, cursor, depth + 1);
+      cursor += sw(c.id);
+
+      if (i < ch.length - 1) {
+        const next = ch[i + 1];
+        const sameDept = normDept(c.dept) === normDept(next.dept);
+        cursor += sameDept ? HGAP : (HGAP + DEPT_GAP);
+      }
+    });
+  }
+
+  const root = data.find(d => !d.par);
+  if (root) place(root.id, 0, 0);
+
+  return pos;
 }
 
 function buildLayout() {
